@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(Projekt_2)
 
-set(SOURCES src/main.cpp)
+set(SOURCES src/main.cpp inc/DLL.hh inc/packet.hh)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
