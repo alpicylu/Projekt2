@@ -7,13 +7,34 @@ int main()
     using namespace std;
 
     DList<Packet<int>> lista;
-    lista.append(Packet<int>(69,420));
-    lista.append(Packet<int>(1,2));
-    lista.append(Packet<int>(3,4));
-    // lista.append(Packet<int>(5,6));
+    lista.append(Packet<int>(0,1));
+    lista.append(Packet<int>(2,3));
+    lista.append(Packet<int>(4,5));
+    lista.append(Packet<int>(6,7));
+    lista.append(Packet<int>(8,9));
 
-    cout << lista.get(1)->getNext()->readData()->getContent() << endl;
-    cout << lista.get(1)->getPrev()->readData()->getContent() << endl;
+    //can i edit data returned by readData()? NO, and thats good. (it returns a ptr to const after all
+
+
+    //print out the whole list:
+    for (int i = 0; i < lista.len(); i++)
+    {
+        cout << lista.get(i)->readData()->getContent() << endl;
+    }
+    cout << "-------------\n";
+
+    lista.del(1);
+    for (int i = 0; i < lista.len(); i++)
+    {
+        cout << lista.get(i)->readData()->getContent() << endl;
+    }
+    cout << "-------------\n";
+
+    lista.insert(2, Packet<int>(5,5));
+    for (int i = 0; i < lista.len(); i++)
+    {
+        cout << lista.get(i)->readData()->getContent() << endl;
+    }
 
 
 }

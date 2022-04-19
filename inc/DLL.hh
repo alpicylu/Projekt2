@@ -34,7 +34,7 @@ public:
         data = wezel.data;
     }
 
-    std::shared_ptr<const generic> readData() const 
+    std::shared_ptr<const generic> readData() const
     {
         return data;
     }
@@ -84,6 +84,11 @@ public:
         n_nodes = 0;
     }
 
+    inline int len() const
+    {
+        return n_nodes;
+    }
+
     void append(const generic& element)
     {
         n_nodes++;
@@ -116,6 +121,29 @@ public:
         headNode = headNode->getPrev();
     }
 
+    void insert(int index, const generic& element)
+    {
+        if (index > n_nodes-1)
+        {
+            std::cerr << "List index out of range" << std::endl;
+            exit(1);
+        }
+
+        std::shared_ptr<Node<generic>> finger(headNode);
+        for (int i=0; i<index; i++)
+        {
+            finger = finger->getNext();
+        }
+
+        std::shared_ptr<Node<generic>> nowa(new Node<generic>(element));
+        nowa->setPrev(finger->getPrev());
+        nowa->setNext(finger);
+        finger->getPrev()->setNext(nowa);
+        finger->setPrev(nowa);
+
+        n_nodes++;
+    }
+
     std::shared_ptr<Node<generic>> get(int index) const
     {
         if (index > n_nodes-1)
@@ -130,6 +158,35 @@ public:
             finger = finger->getNext();
         }
         return finger;
+    }
+
+    void del(int index)
+    {
+        if (index > n_nodes-1)
+        {
+            std::cerr << "List index out of range" << std::endl;
+            exit(1);
+        }
+
+        std::shared_ptr<Node<generic>> finger(headNode);
+        for (int i=0; i<index; i++)
+        {
+            finger = finger->getNext();
+        }
+
+
+        //finger->getPrev()->getNext() = finger->getNext();
+        /*the above didnt work because (theories):
+            1. finger->getPrev()->getNext() is a rigth-value, and assigning a value to right-val does not make any perma chenges
+            2. something with the fact that prev and nextNode are private fields
+            3. getNext() and getPrev() are const methods, but i dont think it would matter in this case.*/
+        finger->getPrev()->setNext(finger->getNext());
+        finger->getNext()->setPrev(finger->getPrev());
+
+        finger->getNext() = NULL;
+        finger->getPrev() = NULL;
+
+        n_nodes--;
     }
 
 
