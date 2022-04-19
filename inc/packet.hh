@@ -45,21 +45,21 @@ public:
     Packet(const Packet<generic>& pckt)
     {
         content = pckt.getContent();
-        ranking = pckt.getPriority();
+        ranking = pckt.getRank();
     }
 
     /* Metoda ta zwraca wartość pakietu */
     inline generic getContent() const { return content; }
 
     /* Metoda ta zwraca pryjorytet pakietu */
-    inline int getPriority() const { return ranking; }
+    inline int getRank() const { return ranking; }
 };
 
 /* Przeciążenie operatora "<<" służace wypisywaniu wartości i pryjorytetu pakietu */
 template <class generic>
 std::ostream& operator<<(std::ostream& os, const Packet<generic>& pckt)
 {
-    os << "(" << pckt.getContent() << ", " << pckt.getPriority() << ")";
+    os << "(" << pckt.getContent() << ", " << pckt.getRank() << ")";
     return os; 
 }
 
