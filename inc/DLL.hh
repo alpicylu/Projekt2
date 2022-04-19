@@ -123,7 +123,7 @@ public:
 
     void insert(int index, const generic& element)
     {
-        if (index > n_nodes-1)
+        if (index > n_nodes-1 || index < 0)
         {
             std::cerr << "List index out of range" << std::endl;
             exit(1);
@@ -144,9 +144,71 @@ public:
         n_nodes++;
     }
 
+    void swap(int id1, int id2)
+    {
+        int idx1 = id1;
+        int idx2 = id2;
+
+        if (idx1 > n_nodes-1 || idx2 > n_nodes-1 || idx1<0 || idx2<0)
+        {
+            std::cerr << "List index out of range" << std::endl;
+            exit(1);
+        }
+        if (idx1 == idx2) {return;}
+        if (idx1 > idx2) {std::swap(idx1, idx2);}
+
+        std::shared_ptr<Node<generic>> temp;
+
+        std::shared_ptr<Node<generic>> finger1(headNode);
+        for (int i=0; i<idx1; i++)
+        {
+            finger1 = finger1->getNext();
+        }
+        std::shared_ptr<Node<generic>> finger2(headNode);
+        for (int i=0; i<idx2; i++)
+        {
+            finger2 = finger2->getNext();
+        }
+
+        // cout << finger1->getPrev()->readData()->getContent() << endl;
+        // cout << finger1->readData()->getContent() << endl;
+        // cout << finger1->getNext()->readData()->getContent() << endl << endl;
+
+        // cout << finger2->getPrev()->readData()->getContent() << endl;
+        // cout << finger2->readData()->getContent() << endl;
+        // cout << finger2->getNext()->readData()->getContent() << endl;
+        // cout << "-------\n";
+
+        finger1->getNext()->setPrev(finger2);
+        finger2->getPrev()->setNext(finger1);
+
+        if (finger1 == headNode){headNode = finger2;} 
+        else {finger1->getPrev()->setNext(finger2);}
+
+        if (finger2 == tailNode) {tailNode = finger1;}
+        else {finger2->getNext()->setPrev(finger1);}
+
+        temp = finger1->getNext();
+        finger1->setNext(finger2->getNext());
+        finger2->setNext(temp);
+
+        temp = finger1->getPrev();
+        finger1->setPrev(finger2->getPrev());
+        finger2->setPrev(temp);
+
+        // cout << finger2->getPrev()->readData()->getContent() << endl;
+        // cout << finger2->readData()->getContent() << endl;
+        // cout << finger2->getNext()->readData()->getContent() << endl << endl;
+
+        // cout << finger1->getPrev()->readData()->getContent() << endl;
+        // cout << finger1->readData()->getContent() << endl;
+        // cout << finger1->getNext()->readData()->getContent() << endl;
+
+    }
+
     std::shared_ptr<Node<generic>> get(int index) const
     {
-        if (index > n_nodes-1)
+        if (index > n_nodes-1 || index < 0)
         {
             std::cerr << "List index out of range" << std::endl;
             exit(1);
@@ -162,7 +224,7 @@ public:
 
     void del(int index)
     {
-        if (index > n_nodes-1)
+        if (index > n_nodes-1 || index < 0)
         {
             std::cerr << "List index out of range" << std::endl;
             exit(1);
