@@ -1,3 +1,6 @@
+#ifndef DLL_HH
+#define DLL_HH
+
 #include <memory>
 #include "packet.hh"
 
@@ -144,8 +147,15 @@ public:
         n_nodes++;
     }
 
-    void swap(int id1, int id2)
+    void swp(int id1, int id2)
     {
+        /*Jest to sposob na rozwiazanie problemu, gdy pierwszy index jest wiekszy od drugiego.
+        Jezeli tego podstawienia by nie bylo, nie nie mozna by bylo zastosowac funkcji swap() na tych dwoch wartosciach
+        gdyz swap() potrzebuje l-wartości, a do funkcji swp() moga zastac wprowadzone r-wartosci.
+        Alternatywą tego rozwiazania, ktore wykozystuje malo eleganckie i marnujace zasoby ponizsze przypisanie,
+        bylo by dostosowanie wskaznikow 'finger1' i 'finger2' oraz operacji z nimi zwiazanymi w taki sposob, aby
+        wykonywaly swoje operacje niezaleznie od tego, ktory z indeksow jest wiekszy a ktory mniejszy. Jest to
+        jednakże o wiele bardziej skomplikowane i błędo-skłonne rozwiązanie. */
         int idx1 = id1;
         int idx2 = id2;
 
@@ -170,40 +180,28 @@ public:
             finger2 = finger2->getNext();
         }
 
-        // cout << finger1->getPrev()->readData()->getContent() << endl;
-        // cout << finger1->readData()->getContent() << endl;
-        // cout << finger1->getNext()->readData()->getContent() << endl << endl;
+        /* Poniższy ciąg operacji jest stosunkowo skomplikowany, dlatego też
+        zdecydowano się przedstawić go w formie graficznej (zdj/Zdj_swp) */
 
-        // cout << finger2->getPrev()->readData()->getContent() << endl;
-        // cout << finger2->readData()->getContent() << endl;
-        // cout << finger2->getNext()->readData()->getContent() << endl;
-        // cout << "-------\n";
-
+        /*SWAP a*/
         finger1->getNext()->setPrev(finger2);
         finger2->getPrev()->setNext(finger1);
 
+        /*SWAP b*/
         if (finger1 == headNode){headNode = finger2;} 
         else {finger1->getPrev()->setNext(finger2);}
-
         if (finger2 == tailNode) {tailNode = finger1;}
         else {finger2->getNext()->setPrev(finger1);}
 
+        /*SWAP c*/
         temp = finger1->getNext();
         finger1->setNext(finger2->getNext());
         finger2->setNext(temp);
 
+        /*SWAP d*/
         temp = finger1->getPrev();
         finger1->setPrev(finger2->getPrev());
         finger2->setPrev(temp);
-
-        // cout << finger2->getPrev()->readData()->getContent() << endl;
-        // cout << finger2->readData()->getContent() << endl;
-        // cout << finger2->getNext()->readData()->getContent() << endl << endl;
-
-        // cout << finger1->getPrev()->readData()->getContent() << endl;
-        // cout << finger1->readData()->getContent() << endl;
-        // cout << finger1->getNext()->readData()->getContent() << endl;
-
     }
 
     std::shared_ptr<Node<generic>> get(int index) const
@@ -235,8 +233,6 @@ public:
         {
             finger = finger->getNext();
         }
-
-
         //finger->getPrev()->getNext() = finger->getNext();
         /*the above didnt work because (theories):
             1. finger->getPrev()->getNext() is a rigth-value, and assigning a value to right-val does not make any perma chenges
@@ -253,3 +249,27 @@ public:
 
 
 };
+
+/* SNIPPETS
+
+    // cout << finger1->getPrev()->readData()->getContent() << endl;
+    // cout << finger1->readData()->getContent() << endl;
+    // cout << finger1->getNext()->readData()->getContent() << endl << endl;
+
+    // cout << finger2->getPrev()->readData()->getContent() << endl;
+    // cout << finger2->readData()->getContent() << endl;
+    // cout << finger2->getNext()->readData()->getContent() << endl;
+    // cout << "-------\n";
+
+    // cout << finger2->getPrev()->readData()->getContent() << endl;
+    // cout << finger2->readData()->getContent() << endl;
+    // cout << finger2->getNext()->readData()->getContent() << endl << endl;
+
+    // cout << finger1->getPrev()->readData()->getContent() << endl;
+    // cout << finger1->readData()->getContent() << endl;
+    // cout << finger1->getNext()->readData()->getContent() << endl;
+
+
+ */
+
+#endif

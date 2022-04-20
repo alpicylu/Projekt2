@@ -52,7 +52,7 @@ public:
     inline generic getContent() const { return content; }
 
     /* Metoda ta zwraca pryjorytet pakietu */
-    inline int getRank() const { return ranking; }
+    inline float getRank() const { return ranking; }
 };
 
 /* Przeciążenie operatora "<<" służace wypisywaniu wartości i pryjorytetu pakietu */
