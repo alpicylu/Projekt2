@@ -94,9 +94,9 @@ int main()
     l.append(Packet<string>("x", 8)); //6
     l.append(Packet<string>("z", 6));
 
-    l.swp(1,3);
+    // l.swp(1,4);
 
-    // QuickSort(l);
+    QuickSort(l);
 
     for (int i=0; i < l.len(); i++)
     {

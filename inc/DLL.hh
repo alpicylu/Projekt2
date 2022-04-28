@@ -4,6 +4,9 @@
 #include <memory>
 #include "packet.hh"
 
+//class declaration
+template <class generic>
+class DList;
 
 /* the following implementation of list nodes will be able to point to any data type (because its generic).
     This will provide easier portability in future project as well as more flexibility - Nodes are no longer constrained to point to Packets, but rather any
@@ -15,6 +18,8 @@ private:
     std::shared_ptr<Node<generic>> prevNode;
     std::shared_ptr<generic> data;
     std::shared_ptr<Node<generic>> nextNode;
+    template <class type>
+    friend class DList; //DList has access to Node's private parts
 
 public:
 
@@ -167,6 +172,7 @@ public:
 
     void swp(int id1, int id2)
     {
+        using namespace std;
         /*Jest to sposob na rozwiazanie problemu, gdy pierwszy index jest wiekszy od drugiego.
         Jezeli tego podstawienia by nie bylo, nie nie mozna by bylo zastosowac funkcji swap() na tych dwoch wartosciach
         gdyz swap() potrzebuje l-wartości, a do funkcji swp() moga zastac wprowadzone r-wartosci.
@@ -221,8 +227,9 @@ public:
         else
         {
             /*SWAP a*/
-            finger1->getNext()->setPrev(finger2);
-            finger2->getPrev()->setNext(finger1);  
+            // finger1->getNext()->setPrev(finger2);
+            // finger2->getPrev()->setNext(finger1);
+            swap(finger1->getNext()->prevNode, finger2->getPrev()->nextNode);
             
             /*SWAP b*/
             if (finger1 == headNode){headNode = finger2;} 
@@ -231,14 +238,16 @@ public:
             else {finger2->getNext()->setPrev(finger1);}
 
             /*SWAP c*/
-            temp = finger1->getNext();
-            finger1->setNext(finger2->getNext());
-            finger2->setNext(temp);
+            // temp = finger1->getNext();
+            // finger1->setNext(finger2->getNext());
+            // finger2->setNext(temp);
+            swap(finger1->nextNode, finger2->nextNode);
 
             /*SWAP d*/
-            temp = finger1->getPrev();
-            finger1->setPrev(finger2->getPrev());
-            finger2->setPrev(temp);
+            // temp = finger1->getPrev();
+            // finger1->setPrev(finger2->getPrev());
+            // finger2->setPrev(temp);
+            swap(finger1->prevNode, finger2->prevNode);
         }
     }
 
