@@ -37,32 +37,32 @@ public:
         data = wezel.data;
     }
 
-    std::shared_ptr<const generic> readData() const
+    inline std::shared_ptr<const generic> readData() const
     {
         return data;
     }
 
-    void setData(const generic& pakiet)
+    inline void setData(const generic& pakiet)
     {
         data = std::make_shared<generic>(pakiet);
     }
 
-    std::shared_ptr<Node<generic>> getPrev() const
+    inline std::shared_ptr<Node<generic>> getPrev() const
     {
         return prevNode;
     }
 
-    std::shared_ptr<Node<generic>> getNext() const
+    inline std::shared_ptr<Node<generic>> getNext() const
     {
         return nextNode;
     }
 
-    void setPrev(std::shared_ptr<Node<generic>> wezel)  //!!! do i need any consts here?
+    inline void setPrev(std::shared_ptr<Node<generic>> wezel)  //!!! do i need any consts here?
     {
         prevNode = wezel;
     }
 
-    void setNext(std::shared_ptr<Node<generic>> wezel)  //!!! do i need any consts here?
+    inline void setNext(std::shared_ptr<Node<generic>> wezel)  //!!! do i need any consts here?
     {
         nextNode = wezel;
     }
@@ -108,6 +108,24 @@ public:
         tailNode = tailNode->getNext();
     }
 
+    //Takes in the same argument type as get() returns, so that you can l.append(lista.get(i))
+    //it should make a copy of the passed node. 
+    void append(std::shared_ptr<Node<generic>> wezel)
+    {
+        n_nodes++;
+        std::shared_ptr<Node<generic>>nowa = std::make_shared<Node<generic>>(*wezel);
+        if (headNode == NULL) //jezeli lista jest pusta
+        {
+            headNode = nowa;
+            tailNode = headNode;
+            return;
+        }
+        tailNode->setNext(nowa);
+        nowa->setPrev(tailNode);
+        nowa->setNext(NULL);
+        tailNode = tailNode->getNext();
+    }
+
     void push(const generic& element)
     {
         n_nodes++;
@@ -128,7 +146,7 @@ public:
     {
         if (index > n_nodes-1 || index < 0)
         {
-            std::cerr << "List index out of range" << std::endl;
+            std::cerr << "insert() - List index out of range" << std::endl;
             exit(1);
         }
 
@@ -161,7 +179,7 @@ public:
 
         if (idx1 > n_nodes-1 || idx2 > n_nodes-1 || idx1<0 || idx2<0)
         {
-            std::cerr << "List index out of range" << std::endl;
+            std::cerr << "swp() - List index out of range" << std::endl;
             exit(1);
         }
         if (idx1 == idx2) {return;}
@@ -174,8 +192,9 @@ public:
         {
             finger1 = finger1->getNext();
         }
-        std::shared_ptr<Node<generic>> finger2(headNode);
-        for (int i=0; i<idx2; i++)
+
+        std::shared_ptr<Node<generic>> finger2(finger1);
+        for (int i=0; i<idx2-idx1; i++)
         {
             finger2 = finger2->getNext();
         }
@@ -183,35 +202,53 @@ public:
         /* Poniższy ciąg operacji jest stosunkowo skomplikowany, dlatego też
         zdecydowano się przedstawić go w formie graficznej (zdj/Zdj_swp) */
 
-        /*SWAP a*/
-        finger1->getNext()->setPrev(finger2);
-        finger2->getPrev()->setNext(finger1);
+        if (idx2-idx1 == 1) //jezeli elementy są tuż obok siebie
+        {
+            /*SWAP b*/
+            if (finger1 == headNode){headNode = finger2;} 
+            else {finger1->getPrev()->setNext(finger2);}
+            if (finger2 == tailNode) {tailNode = finger1;}
+            else {finger2->getNext()->setPrev(finger1);}
 
-        /*SWAP b*/
-        if (finger1 == headNode){headNode = finger2;} 
-        else {finger1->getPrev()->setNext(finger2);}
-        if (finger2 == tailNode) {tailNode = finger1;}
-        else {finger2->getNext()->setPrev(finger1);}
+            /*SWAP c*/
+            finger1->setNext(finger2->getNext());
+            finger2->setNext(finger1);
+            
+            /*SWAP d*/
+            finger2->setPrev(finger1->getPrev());
+            finger1->setPrev(finger2);
+        }
+        else
+        {
+            /*SWAP a*/
+            finger1->getNext()->setPrev(finger2);
+            finger2->getPrev()->setNext(finger1);  
+            
+            /*SWAP b*/
+            if (finger1 == headNode){headNode = finger2;} 
+            else {finger1->getPrev()->setNext(finger2);}
+            if (finger2 == tailNode) {tailNode = finger1;}
+            else {finger2->getNext()->setPrev(finger1);}
 
-        /*SWAP c*/
-        temp = finger1->getNext();
-        finger1->setNext(finger2->getNext());
-        finger2->setNext(temp);
+            /*SWAP c*/
+            temp = finger1->getNext();
+            finger1->setNext(finger2->getNext());
+            finger2->setNext(temp);
 
-        /*SWAP d*/
-        temp = finger1->getPrev();
-        finger1->setPrev(finger2->getPrev());
-        finger2->setPrev(temp);
+            /*SWAP d*/
+            temp = finger1->getPrev();
+            finger1->setPrev(finger2->getPrev());
+            finger2->setPrev(temp);
+        }
     }
 
     std::shared_ptr<Node<generic>> get(int index) const
     {
         if (index > n_nodes-1 || index < 0)
         {
-            std::cerr << "List index out of range" << std::endl;
+            std::cerr << "get() - List index out of range" << std::endl;
             exit(1);
         }
-
         std::shared_ptr<Node<generic>> finger(headNode);
         for (int i=0; i<index; i++)
         {
@@ -222,10 +259,25 @@ public:
 
     void del(int index)
     {
+
         if (index > n_nodes-1 || index < 0)
         {
-            std::cerr << "List index out of range" << std::endl;
+            std::cerr << "del() - List index out of range" << std::endl;
             exit(1);
+        }
+        if (index == 0)
+        {
+            headNode = headNode->getNext();
+            headNode->setPrev(NULL);
+            n_nodes--;
+            return;
+        }
+        else if (index == n_nodes-1)
+        {
+            tailNode = tailNode->getPrev();
+            tailNode->setNext(NULL);
+            n_nodes--;
+            return;
         }
 
         std::shared_ptr<Node<generic>> finger(headNode);
@@ -238,13 +290,14 @@ public:
             1. finger->getPrev()->getNext() is a rigth-value, and assigning a value to right-val does not make any perma chenges
             2. something with the fact that prev and nextNode are private fields
             3. getNext() and getPrev() are const methods, but i dont think it would matter in this case.*/
+
         finger->getPrev()->setNext(finger->getNext());
         finger->getNext()->setPrev(finger->getPrev());
 
         finger->getNext() = NULL;
         finger->getPrev() = NULL;
 
-        n_nodes--;
+        
     }
 
 
