@@ -2,6 +2,8 @@
 #define DLL_HH
 
 #include <memory>
+#include <math.h>
+#include <algorithm>
 #include "packet.hh"
 
 //class declaration
@@ -20,6 +22,8 @@ private:
     std::shared_ptr<Node<generic>> nextNode;
     template <class type>
     friend class DList; //DList has access to Node's private parts
+
+
 
 public:
 
@@ -42,6 +46,13 @@ public:
         data = wezel.data;
     }
 
+    ~Node()
+    {
+        prevNode = NULL;
+        nextNode = NULL;
+        data = NULL;
+    }
+
     inline std::shared_ptr<const generic> readData() const
     {
         return data;
@@ -62,12 +73,12 @@ public:
         return nextNode;
     }
 
-    inline void setPrev(std::shared_ptr<Node<generic>> wezel)  //!!! do i need any consts here?
+    inline void setPrev(const std::shared_ptr<Node<generic>>& wezel)  //!!! do i need any consts here?
     {
         prevNode = wezel;
     }
 
-    inline void setNext(std::shared_ptr<Node<generic>> wezel)  //!!! do i need any consts here?
+    inline void setNext(const std::shared_ptr<Node<generic>>& wezel)  //!!! do i need any consts here?
     {
         nextNode = wezel;
     }
@@ -82,6 +93,56 @@ private:
     std::shared_ptr<Node<generic>> headNode;
     std::shared_ptr<Node<generic>> tailNode;
     int n_nodes;
+
+    //make this outside of the class
+    std::shared_ptr<Node<generic>> closest_to(int idx, int fing1_idx, std::shared_ptr<Node<generic>> fing1_ptr)
+    {
+        int to_tail = idx - n_nodes-1;
+        int to_head = idx;
+        int to_finger = idx - fing1_idx;
+        
+        if (abs(to_tail) <= abs(to_head) && abs(to_tail) <= abs(to_finger)) //if distance to tail is smallest
+        {
+            //iterate backwards from tail and return
+            std::shared_ptr<Node<generic>> finger2(tailNode);
+            for (int i=0; i<n_nodes-1-idx; i++)
+            {
+                finger2 = finger2->getPrev();
+            }
+            return finger2;
+        }
+        else if (abs(to_head) <= abs(to_tail) && abs(to_head) <= abs(to_finger)) //if distance to head is smallest
+        {
+            //iterate from head upwards and return
+            std::shared_ptr<Node<generic>> finger2(headNode);
+            for (int i=0; i<idx; i++)// POST OF PREINC IS FASTER???
+            {
+                finger2 = finger2->getNext();
+            }
+            return finger2;
+        }
+        else //if finger is the closest
+        {
+            //somehow get finger's pointer and iterate from there in the right direction.
+            if (idx-fing1_idx < 0)
+            {
+                std::shared_ptr<Node<generic>> finger2(fing1_ptr);
+                for (int i=0; i<fing1_idx-idx; i++)
+                {
+                    finger2 = finger2->getPrev();
+                }
+                return finger2;
+            }
+            std::shared_ptr<Node<generic>> finger2(fing1_ptr);
+            for (int i=0; i< idx-fing1_idx; i++)
+            {
+                finger2 = finger2->getNext();
+            }
+            return finger2;
+
+        }
+        return NULL;
+    }
 
 public:
 
@@ -191,19 +252,33 @@ public:
         if (idx1 == idx2) {return;}
         if (idx1 > idx2) {std::swap(idx1, idx2);}
 
-        std::shared_ptr<Node<generic>> temp;
+        // std::shared_ptr<Node<generic>> temp;
 
-        std::shared_ptr<Node<generic>> finger1(headNode);
-        for (int i=0; i<idx1; i++)
+        //you can optimise those two just like you did with get()
+        std::shared_ptr<Node<generic>> finger1;
+        if (idx1 < n_nodes/2)
         {
-            finger1 = finger1->getNext();
+            finger1 = headNode;
+            for (int i=0; i<idx1; i++)
+            {
+                finger1 = finger1->getNext();
+            }
+        }
+        else
+        {
+            finger1 = tailNode;
+            for (int i=0; i<n_nodes-1-idx1; i++)
+            {
+                finger1 = finger1->getPrev();
+            }
         }
 
-        std::shared_ptr<Node<generic>> finger2(finger1);
-        for (int i=0; i<idx2-idx1; i++)
-        {
-            finger2 = finger2->getNext();
-        }
+        std::shared_ptr<Node<generic>> finger2 = closest_to(idx2, idx1, finger1);
+        // std::shared_ptr<Node<generic>> finger2(finger1);
+        // for (int i=0; i<idx2-idx1; i++)
+        // {
+        //     finger2 = finger2->getNext();
+        // }
 
         /* Poniższy ciąg operacji jest stosunkowo skomplikowany, dlatego też
         zdecydowano się przedstawić go w formie graficznej (zdj/Zdj_swp) */
@@ -217,38 +292,41 @@ public:
             else {finger2->getNext()->setPrev(finger1);}
 
             /*SWAP c*/
-            finger1->setNext(finger2->getNext());
-            finger2->setNext(finger1);
-            
-            /*SWAP d*/
-            finger2->setPrev(finger1->getPrev());
-            finger1->setPrev(finger2);
-        }
-        else
-        {
-            /*SWAP a*/
-            // finger1->getNext()->setPrev(finger2);
-            // finger2->getPrev()->setNext(finger1);
-            swap(finger1->getNext()->prevNode, finger2->getPrev()->nextNode);
-            
-            /*SWAP b*/
-            if (finger1 == headNode){headNode = finger2;} 
-            else {finger1->getPrev()->setNext(finger2);}
-            if (finger2 == tailNode) {tailNode = finger1;}
-            else {finger2->getNext()->setPrev(finger1);}
-
-            /*SWAP c*/
-            // temp = finger1->getNext();
             // finger1->setNext(finger2->getNext());
-            // finger2->setNext(temp);
-            swap(finger1->nextNode, finger2->nextNode);
-
+            // finger2->setNext(finger1);
+            finger1->nextNode = finger2->nextNode;
+            finger2->nextNode = finger1;
+            
             /*SWAP d*/
-            // temp = finger1->getPrev();
-            // finger1->setPrev(finger2->getPrev());
-            // finger2->setPrev(temp);
-            swap(finger1->prevNode, finger2->prevNode);
+            // finger2->setPrev(finger1->getPrev());
+            // finger1->setPrev(finger2);
+            finger2->prevNode = finger1->prevNode;
+            finger1->prevNode = finger2;
+            return;
         }
+        /*SWAP a*/
+        // finger1->getNext()->setPrev(finger2);
+        // finger2->getPrev()->setNext(finger1);
+        swap(finger1->getNext()->prevNode, finger2->getPrev()->nextNode);
+        
+        /*SWAP b*/
+        if (finger1 == headNode){headNode = finger2;} 
+        else {finger1->getPrev()->setNext(finger2);}
+        if (finger2 == tailNode) {tailNode = finger1;}
+        else {finger2->getNext()->setPrev(finger1);}
+
+        /*SWAP c*/
+        // temp = finger1->getNext();
+        // finger1->setNext(finger2->getNext());
+        // finger2->setNext(temp);
+        swap(finger1->nextNode, finger2->nextNode);
+
+        /*SWAP d*/
+        // temp = finger1->getPrev();
+        // finger1->setPrev(finger2->getPrev());
+        // finger2->setPrev(temp);
+        swap(finger1->prevNode, finger2->prevNode);
+        
     }
 
     std::shared_ptr<Node<generic>> get(int index) const
@@ -258,12 +336,23 @@ public:
             std::cerr << "get() - List index out of range" << std::endl;
             exit(1);
         }
-        std::shared_ptr<Node<generic>> finger(headNode);
-        for (int i=0; i<index; i++)
+
+        if (index < n_nodes/2)
         {
-            finger = finger->getNext();
+            std::shared_ptr<Node<generic>> finger(headNode);
+            for (int i=0; i<index; i++)
+            {
+                finger = finger->getNext();
+            }
+            return finger;
+        }
+        std::shared_ptr<Node<generic>> finger(tailNode);
+        for (int i=0; i<n_nodes-1-index; i++)
+        {
+            finger = finger->getPrev();
         }
         return finger;
+        /*you could additionally store the location of the last node retrieved to make the process even faster*/
     }
 
     void del(int index)
@@ -274,7 +363,14 @@ public:
             std::cerr << "del() - List index out of range" << std::endl;
             exit(1);
         }
-        if (index == 0)
+        if (n_nodes==1)
+        {
+            headNode = NULL;
+            tailNode = NULL;
+            n_nodes--;
+            return;
+        }
+        else if (index == 0)
         {
             headNode = headNode->getNext();
             headNode->setPrev(NULL);
@@ -289,6 +385,8 @@ public:
             return;
         }
 
+
+        //optimise
         std::shared_ptr<Node<generic>> finger(headNode);
         for (int i=0; i<index; i++)
         {
@@ -303,10 +401,22 @@ public:
         finger->getPrev()->setNext(finger->getNext());
         finger->getNext()->setPrev(finger->getPrev());
 
-        finger->getNext() = NULL;
-        finger->getPrev() = NULL;
+        finger->nextNode = NULL;
+        finger->prevNode = NULL;
+        n_nodes--;
 
         
+    }
+
+    void clear()
+    {
+        // while (n_nodes > 0)
+        // {
+        //     this->del(0);
+        // }
+        headNode = NULL;
+        tailNode = NULL;
+        n_nodes = 0;
     }
 
 

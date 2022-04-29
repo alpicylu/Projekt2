@@ -56,58 +56,99 @@ void QuickSort(DList<Packet<generic>>& lista)
 }
 
 
-void MergeSort(DList<Packet<std::string>>& lista)
+// void MergeSort(DList<Packet<std::string>>& lista)
+// {
+//     if (lista.len() < 2) {return;}
+
+//     int mid_index = lista.len()/2;  //[0....len()/2 - 1] [len()/2 .......len()-1]
+//     DList<Packet<std::string>> lewa;
+//     DList<Packet<std::string>> prawa;
+
+//     for (int i=0; i<mid_index; i++)
+//     {
+//         lewa.append(lista.get(i));
+//     }
+//     for (int i=mid_index; i<lista.len(); i++)
+//     {
+//         prawa.append(lista.get(i));
+//     }
+
+//     MergeSort(lewa);
+//     MergeSort(prawa);
+
+//     /* Merging the sorted lists: */
+//     int l = 0; //indexes that track positions of elements in the left, right and merge(middle) lists
+//     int p = 0;
+//     int m = 0;
+//     while (l < lewa.len() && p < prawa.len())
+//     {
+//         if (lewa.get(l)->readData()->getRank() <= prawa.get(p)->readData()->getRank())
+//         {
+//             lista.get(m)->setData(Packet<std::string>( *(lewa.get(l)->readData()) ));
+//             l++;
+//             m++;
+//         }
+//         else
+//         {
+//             lista.get(m)->setData(Packet<std::string>( *(prawa.get(p)->readData()) ));
+//             p++;
+//             m++;
+//         }
+//     }
+//     while (l < lewa.len())
+//     {
+//         lista.get(m)->setData(Packet<std::string>( *(lewa.get(l)->readData()) ));
+//         l++;
+//         m++;      
+//     }
+//     while (p < prawa.len())
+//     {
+//         lista.get(m)->setData(Packet<std::string>( *(prawa.get(p)->readData()) ));
+//         p++;
+//         m++;        
+//     }
+
+// }
+
+template <class generic>
+void merge(DList<Packet<generic>>& l1, DList<Packet<generic>>& l2, DList<Packet<generic>>& lista)
 {
-    if (lista.len() < 2) {return;}
-
-    int mid_index = lista.len()/2;  //[0....len()/2 - 1] [len()/2 .......len()-1]
-    DList<Packet<std::string>> lewa;
-    DList<Packet<std::string>> prawa;
-
-    for (int i=0; i<mid_index; i++)
+    int p1 = 0;
+    int p2 = 0;
+    while(p1 < l1.len() && p2 < l2.len())
     {
-        lewa.append(lista.get(i));
-    }
-    for (int i=mid_index; i<lista.len(); i++)
-    {
-        prawa.append(lista.get(i));
-    }
-
-    MergeSort(lewa);
-    MergeSort(prawa);
-
-    /* Merging the sorted lists: */
-    int l = 0; //indexes that track positions of elements in the left, right and merge(middle) lists
-    int p = 0;
-    int m = 0;
-    while (l < lewa.len() && p < prawa.len())
-    {
-        if (lewa.get(l)->readData()->getRank() <= prawa.get(p)->readData()->getRank())
+        if (l1.get(p1)->readData()->getRank() < l2.get(p2)->readData()->getRank())
         {
-            lista.get(m)->setData(Packet<std::string>( *(lewa.get(l)->readData()) ));
-            l++;
-            m++;
+            lista.append(l1.get(p1++));
         }
         else
         {
-            lista.get(m)->setData(Packet<std::string>( *(prawa.get(p)->readData()) ));
-            p++;
-            m++;
+            lista.append(l2.get(p2++));
         }
     }
-    while (l < lewa.len())
+    while (p1 < l1.len())
     {
-        lista.get(m)->setData(Packet<std::string>( *(lewa.get(l)->readData()) ));
-        l++;
-        m++;      
+        lista.append(l1.get(p1++));
     }
-    while (p < prawa.len())
+    while (p2 < l2.len())
     {
-        lista.get(m)->setData(Packet<std::string>( *(prawa.get(p)->readData()) ));
-        p++;
-        m++;        
+        lista.append(l2.get(p2++));
     }
+}
 
+template <class generic>
+void MergeSort(DList<Packet<generic>>& lista)
+{
+    int size = lista.len();
+    if (size <= 1) return;
+    DList<Packet<generic>> l1, l2;
+
+    for (int i=0; i<size/2; i++) l1.append(lista.get(i));
+    for (int i=size/2; i<size; i++) l2.append(lista.get(i));
+    lista.clear();
+    MergeSort(l1);
+    MergeSort(l2);
+    merge(l1, l2, lista);
 }
 
 #endif
