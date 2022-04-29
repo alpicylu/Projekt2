@@ -13,7 +13,7 @@
 
 //     for (int i=start; i<=stop; i++)
 //     {
-//         if ( lista.get(i)->readData()->getRank() < lista.get(pivot)->readData()->getRank() )
+//         if ( lista.get(i)->getData()->getRank() < lista.get(pivot)->getData()->getRank() )
 //         {
 //             lista.swp(i, pIdx);
 //             pIdx++;
@@ -33,14 +33,17 @@ void qs_step(DList<Packet<generic>>& lista, int start, int stop)
 {
     if (start >= stop) return;
 
-    int pivot = lista.get(stop)->readData()->getRank();
+    // int pivot = lista.get(stop)->getData()->getRank();
+    float pivot = lista[stop].getRank();
     int left = start;
     int right = stop-1;
 
     while (left <= right)
     {
-        while (left <= right && pivot >= lista.get(left)->readData()->getRank()) left++;
-        while (right >= left && lista.get(right)->readData()->getRank() >= pivot) right--;
+        // while (left <= right && pivot >= lista.get(left)->getData()->getRank()) left++;
+        // while (right >= left && lista.get(right)->getData()->getRank() >= pivot) right--;
+        while (left <= right && pivot >= lista[left].getRank()) left++;
+        while (right >= left && lista[right].getRank() >= pivot) right--;
         if (left < right) {lista.swp(left, right);}
     }
     lista.swp(left, stop);
@@ -82,28 +85,28 @@ void QuickSort(DList<Packet<generic>>& lista)
 //     int m = 0;
 //     while (l < lewa.len() && p < prawa.len())
 //     {
-//         if (lewa.get(l)->readData()->getRank() <= prawa.get(p)->readData()->getRank())
+//         if (lewa.get(l)->getData()->getRank() <= prawa.get(p)->getData()->getRank())
 //         {
-//             lista.get(m)->setData(Packet<std::string>( *(lewa.get(l)->readData()) ));
+//             lista.get(m)->setData(Packet<std::string>( *(lewa.get(l)->getData()) ));
 //             l++;
 //             m++;
 //         }
 //         else
 //         {
-//             lista.get(m)->setData(Packet<std::string>( *(prawa.get(p)->readData()) ));
+//             lista.get(m)->setData(Packet<std::string>( *(prawa.get(p)->getData()) ));
 //             p++;
 //             m++;
 //         }
 //     }
 //     while (l < lewa.len())
 //     {
-//         lista.get(m)->setData(Packet<std::string>( *(lewa.get(l)->readData()) ));
+//         lista.get(m)->setData(Packet<std::string>( *(lewa.get(l)->getData()) ));
 //         l++;
 //         m++;      
 //     }
 //     while (p < prawa.len())
 //     {
-//         lista.get(m)->setData(Packet<std::string>( *(prawa.get(p)->readData()) ));
+//         lista.get(m)->setData(Packet<std::string>( *(prawa.get(p)->getData()) ));
 //         p++;
 //         m++;        
 //     }
@@ -117,7 +120,7 @@ void merge(DList<Packet<generic>>& l1, DList<Packet<generic>>& l2, DList<Packet<
     int p2 = 0;
     while(p1 < l1.len() && p2 < l2.len())
     {
-        if (l1.get(p1)->readData()->getRank() < l2.get(p2)->readData()->getRank())
+        if (l1[p1].getRank() < l2[p2].getRank())
         {
             lista.append(l1.get(p1++));
         }
@@ -149,6 +152,52 @@ void MergeSort(DList<Packet<generic>>& lista)
     MergeSort(l1);
     MergeSort(l2);
     merge(l1, l2, lista);
+}
+
+template <class generic>
+void insertionsort(DList<Packet<generic>>& lista)
+{
+    Packet<generic> pakiet;
+    int j;
+    int size = lista.len();
+    for (int i=1; i<size; i++)
+    {
+        pakiet = lista[i];
+        j = i;
+        while (j > 0 && lista[j-1].getRank() > pakiet.getRank())
+        {
+            lista[j] = lista[j-1];
+            j--;
+        }
+        lista[j] = pakiet;
+    }
+}
+
+template <class generic>
+void BucketSort(DList<Packet<generic>>& lista)
+{
+    using namespace std;
+    int n_buckets = 11;
+    DList<Packet<generic>> buckets[n_buckets];
+
+    for (int i=0; i<lista.len(); i++)
+    {
+        Packet<generic> elem = lista[i];
+        int bi = floor(elem.getRank());
+        if (bi <= -1) bi = 0;
+        else if (bi > 9) bi = 9;
+        buckets[bi].append(elem);
+    }
+    for (int i=0; i<n_buckets; i++)
+    {
+        insertionsort(buckets[i]);
+    }
+    lista.clear();
+    for (int i=0; i<n_buckets; i++)
+    {
+        // for (int j=0; j<buckets[i].len(); j++) lista.append(*(buckets[i].get(j)->getData()));
+        for (int j=0; j<buckets[i].len(); j++) lista.append(buckets[i][j]);
+    }
 }
 
 #endif

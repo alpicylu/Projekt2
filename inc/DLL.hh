@@ -53,7 +53,7 @@ public:
         data = NULL;
     }
 
-    inline std::shared_ptr<const generic> readData() const
+    inline std::shared_ptr<generic> getData() const
     {
         return data;
     }
@@ -62,6 +62,11 @@ public:
     {
         data = std::make_shared<generic>(pakiet);
     }
+
+    // inline void setData(std::shared_ptr<Node<generic>> wezel)
+    // {
+    //     data = std::make_shared<generic>(wezel->get)
+    // }
 
     inline std::shared_ptr<Node<generic>> getPrev() const
     {
@@ -115,7 +120,7 @@ private:
         {
             //iterate from head upwards and return
             std::shared_ptr<Node<generic>> finger2(headNode);
-            for (int i=0; i<idx; i++)// POST OF PREINC IS FASTER???
+            for (int i=0; i<idx; i++)
             {
                 finger2 = finger2->getNext();
             }
@@ -254,7 +259,6 @@ public:
 
         // std::shared_ptr<Node<generic>> temp;
 
-        //you can optimise those two just like you did with get()
         std::shared_ptr<Node<generic>> finger1;
         if (idx1 < n_nodes/2)
         {
@@ -273,6 +277,7 @@ public:
             }
         }
 
+        //consider deleting this after some performance tests, 
         std::shared_ptr<Node<generic>> finger2 = closest_to(idx2, idx1, finger1);
         // std::shared_ptr<Node<generic>> finger2(finger1);
         // for (int i=0; i<idx2-idx1; i++)
@@ -419,29 +424,13 @@ public:
         n_nodes = 0;
     }
 
+    generic& operator[] (int index)
+    {
+        return *(this->get(index)->getData());
+    }
 
 };
 
-/* SNIPPETS
 
-    // cout << finger1->getPrev()->readData()->getContent() << endl;
-    // cout << finger1->readData()->getContent() << endl;
-    // cout << finger1->getNext()->readData()->getContent() << endl << endl;
-
-    // cout << finger2->getPrev()->readData()->getContent() << endl;
-    // cout << finger2->readData()->getContent() << endl;
-    // cout << finger2->getNext()->readData()->getContent() << endl;
-    // cout << "-------\n";
-
-    // cout << finger2->getPrev()->readData()->getContent() << endl;
-    // cout << finger2->readData()->getContent() << endl;
-    // cout << finger2->getNext()->readData()->getContent() << endl << endl;
-
-    // cout << finger1->getPrev()->readData()->getContent() << endl;
-    // cout << finger1->readData()->getContent() << endl;
-    // cout << finger1->getNext()->readData()->getContent() << endl;
-
-
- */
 
 #endif
