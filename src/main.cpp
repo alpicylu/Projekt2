@@ -6,6 +6,7 @@
 #include <vector>
 #include "read_csv.hh"
 #include "sortingAlgos.hh"
+#include "stattrack.hh"
 
 void Test_dll_methods()
 {
@@ -14,7 +15,7 @@ void Test_dll_methods()
     DList<Packet<string>> lista3;
     DList<Packet<string>> lista4;
     DList<Packet<string>> lista5;
-    std::filesystem::path path = "/run/media/aleksander/D/SharedWithManjaro/SEM4/PAMSI/Projekt2/dane/test_1k.csv";
+    std::filesystem::path path = "/run/media/aleksander/D/SharedWithManjaro/SEM4/PAMSI/Projekt2/dane/test_10k.csv";
 
     int n_ent = 10000; //17 is the equilibriom point
 
@@ -23,15 +24,16 @@ void Test_dll_methods()
     uniform_int_distribution<int> creation(-1, 10);
     // uniform_int_distribution<int> swaping(0, n_ent-1);
 
-    // read_csv(path, lista3);
-    // read_csv(path, lista4);
-    for (int i=0; i<n_ent; i++)
-    {
-        int r = creation(rng);
-        lista3.append(Packet<string>("cos", r));
-        lista4.append(Packet<string>("cos", r));
-        lista5.append(Packet<string>("cos", r));
-    }
+    read_csv(path, lista3);
+    read_csv(path, lista4);
+    read_csv(path, lista5);
+    // for (int i=0; i<n_ent; i++)
+    // {
+    //     int r = creation(rng);
+    //     lista3.append(Packet<string>("cos", r));
+    //     lista4.append(Packet<string>("cos", r));
+    //     lista5.append(Packet<string>("cos", r));
+    // }
 
     // auto startqs = chrono::high_resolution_clock::now();
     // QuickSort(lista3);
@@ -90,24 +92,35 @@ int main()
 
 
     DList<Packet<string>> l;
-    l.append(Packet<string>("a", 1)); //0
+    l.append(Packet<string>("a", -1)); //0
     l.append(Packet<string>("b", 10));
     l.append(Packet<string>("c", -1));
     l.append(Packet<string>("b", 2)); //3
     l.append(Packet<string>("g", 5));
     l.append(Packet<string>("h", 7));
     l.append(Packet<string>("x", 8)); //6
-    l.append(Packet<string>("z", 6));
-    l.append(Packet<string>("g", 44));
-    l.append(Packet<string>("h", 162));
-    l.append(Packet<string>("x", 68)); //6
-    l.append(Packet<string>("z", 12));
+    l.append(Packet<string>("z", -1));
+    l.append(Packet<string>("g", 4));
+    l.append(Packet<string>("h", 1));
 
-    BucketSort(l);
-    for (int i=0; i < l.len(); i++)
-    {
-        cout << l.get(i)->getData()->getRank() << endl;
-    }
+
+    // l.clear();
+
+    // l.append(Packet<string>("c", 444));
+
+    // Stats<string>::Value ValueStats;
+    // Stats<string>::Time TimeStats;
+    // TimeStats.Time_MS(l);
+    // ValueStats.delete_empty(l);
+    // ValueStats.calcMean(l);
+    // ValueStats.calcMedian(l);
+    // for (int i=0; i < l.len(); i++)
+    // {
+    //     cout << l[i].getRank() << endl;
+    // }
+    // cout << "------" << endl;
+    // cout << ValueStats.getMean() << " , " << ValueStats.getMedian() << endl;
+    // cout << TimeStats.getTimeMS() << endl;
 
 
 
@@ -119,5 +132,6 @@ int main()
     bucket
     performance tests
     deleting empties
+    stats
 
 */

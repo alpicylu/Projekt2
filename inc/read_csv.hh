@@ -52,7 +52,7 @@ void read_csv(std::string filename, DList<Packet<std::string>>& lista)
             }
         }
         // cout << columns[0] << " -- " << columns[1] << " -- " << stof(columns[2]) << " -- " << endl; 
-        if (columns[2] == "") {columns[2]="-1.0";}
+        if (columns[2] == "") {columns[2]="-1.0";} //empty entreis are denoted by -1, since you cant rate a movie -1/10.
         lista.append(Packet<string>(columns[1], stof(columns[2])));
 
     }

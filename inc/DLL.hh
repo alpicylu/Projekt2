@@ -415,10 +415,10 @@ public:
 
     void clear()
     {
-        // while (n_nodes > 0)
-        // {
-        //     this->del(0);
-        // }
+        for (int i=0; i < this->len(); i++)
+        {
+            this->del(0);
+        }
         headNode = NULL;
         tailNode = NULL;
         n_nodes = 0;
